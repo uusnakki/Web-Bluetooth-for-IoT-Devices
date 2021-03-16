@@ -1,6 +1,9 @@
 # Amalia Stratos PoC
 
 Project repository for proof of concept.
+In progress with
+* ReactJS
+* Web Bluetooth
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
