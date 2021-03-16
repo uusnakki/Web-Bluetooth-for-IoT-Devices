@@ -1,7 +1,7 @@
 # Amalia Stratos PoC
 
 Project repository for proof of concept.
-In progress with
+In progress with:
 * ReactJS
 * Web Bluetooth
 
