@@ -1,4 +1,4 @@
-# Amalia Stator PoC
+# Amalia Stratos PoC
 
 Project repository for proof of concept.
 
