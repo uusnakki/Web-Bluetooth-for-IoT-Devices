@@ -10,7 +10,8 @@ function App() {
     navigator.bluetooth.requestDevice({
       filters: [{
         name: 'HDBDG'
-      }]
+      }],
+      optionalServices: ['00001800-0000-1000-8000-00805f9b34fb']
     })
     //Then we continue to connect to it via GATT.
       .then(device => {
@@ -19,33 +20,26 @@ function App() {
         
   })
   // Here we ask the server for badges' service. 
-.then(server => server.getPrimaryService('6e400001-b5a3-f393-e0a9-e50e24dcca9e'))
+.then(server => server.getPrimaryService('00001800-0000-1000-8000-00805f9b34fb'))
   // And here we ask the service for its characterics --> notify -characterics in this case. 
-    .then(service => service.getCharacteristic('6e400003-b5a3-f393-e0a9-e50e24dcca9e'))
+    .then(service => service.getCharacteristic('00002a01-0000-1000-8000-00805f9b34fb'))
     .then(characteristic => {
-      return characteristic.startNotifications()
-    })
-    // Here we want to add a event listener for notifications and start to get notified of data changes.
-    .then(characteristic => {
-      characteristic.addEventListener('characteristicvaluechanged',
-        handleCharacteristicValueChanged);
-      console.log('Notifications have been started.');
       console.log(characteristic)
+      return characteristic.readValue()
     })
-    .catch(error => { console.error(error); });
+    .then(value => {
+      //Reads some value of characteristics
+      console.log(value.getUint8(1))
+      setBadgedata(value.getUint8(1))
+      console.log(value)
+    })
+    
 }
 
 // This is a function which should convert the data types to values we could use in the front end.
+//This should be called when we add an event listener for future notifications.
 function handleCharacteristicValueChanged(event) {
-  const value = event.target.value;
-  let a = [];
-  // Convert raw data bytes to hex values just for the sake of showing something.
-  // In the "real" world, you'd use data.getUint8, data.getUint16 or even
-  // TextDecoder to process raw data bytes.
-  for (let i = 0; i < value.byteLength; i++) {
-    a.push('0x' + ('00' + value.getUint8(i).toString(16)).slice(-2));
-  }
-  console.log('> ' + a.join(' '));
+  const value = event.target.value.getUint8(0);
   console.log('Received ' + value);
   // This should set badge data to data we get from badges.
   setBadgedata(value)
