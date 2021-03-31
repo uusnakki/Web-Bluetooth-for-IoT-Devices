@@ -22,27 +22,25 @@ function App() {
   // Here we ask the server for badges' service. 
 .then(server => server.getPrimaryService('00001800-0000-1000-8000-00805f9b34fb'))
   // And here we ask the service for its characterics --> notify -characterics in this case. 
-    .then(service => service.getCharacteristic('00002a01-0000-1000-8000-00805f9b34fb'))
+    .then(service => {
+      console.log("Getting the characteristic")
+      return service.getCharacteristic('00002a01-0000-1000-8000-00805f9b34fb')
+    })
     .then(characteristic => {
       console.log(characteristic)
+      characteristic.addEventListener('characteristicvaluechanged',
+      handleCharacteristicValueChanged)
       return characteristic.readValue()
     })
-    .then(value => {
-      //Reads some value of characteristics
-      console.log(value.getUint8(1))
-      setBadgedata(value.getUint8(1))
-      console.log(value)
-    })
-    
 }
 
 // This is a function which should convert the data types to values we could use in the front end.
 //This should be called when we add an event listener for future notifications.
 function handleCharacteristicValueChanged(event) {
-  const value = event.target.value.getUint8(0);
-  console.log('Received ' + value);
-  // This should set badge data to data we get from badges.
-  setBadgedata(value)
+  const badgeValue = event.target.value.getUint8(1);
+  console.log('Received ' + badgeValue);
+  // This sets badge data to the data we get from badges.
+  setBadgedata(badgeValue)
  }
 
 return (
@@ -53,7 +51,7 @@ return (
         </h2>
       <div className="buttonGroup">
         <button className="button" onClick={connectToDeviceAndSubscribeToUpdates}>Connect</button>
-        <p>Mysterious badge data: {badgedata}</p>
+        <p>Badge data: {badgedata}</p>
       </div>
     </header>
   </div>
