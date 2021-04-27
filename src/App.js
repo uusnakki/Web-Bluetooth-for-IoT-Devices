@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import styles from './App.css';
+import struct from "./myStruct.js";
 
 
 function App() {
   // This is the data that we get from the badge. We use states to edit it.
   const [badgedata, setBadgedata] = useState("");
+
+  //TODO: should be swapped to constanly changing date time: now it is a constant
   const date = new Date();
   const currentTime = date.getTime();
 
@@ -29,6 +32,7 @@ function App() {
       const secondaryService = await server.getPrimaryService('00001800-0000-1000-8000-00805f9b34fb')
       // And here we ask the service for its characteristics --> notify -characteristics in this case. 
       const notifyC = await primaryService.getCharacteristic('6e400003-b5a3-f393-e0a9-e50e24dcca9e');
+      // Here is a characterristic for asking the device's name
       const askName = await secondaryService.getCharacteristic('00002a00-0000-1000-8000-00805f9b34fb');
       const writeC = await primaryService.getCharacteristic('6e400002-b5a3-f393-e0a9-e50e24dcca9e');
       console.log(notifyC)
@@ -43,25 +47,53 @@ function App() {
       const alertValue = await askName.readValue()
       //console.log(alertValue)
 
-     // await window.setInterval(communicateWithBadge, 3000)
-      
+      // await window.setInterval(communicateWithBadge, 3000)
+
       //console.log(askName.readValue().getUint8(0))
 
       //setBadgedata("töttöröö")
 
+
+      /*Here some random data for arraybuffer testing.
+      This works! Now:
+        - badge doesnt disconnect immediately after writing
+        - event handler for notifying is activated
+      */
+       let s = struct('<cIIH')
+       const bufferTest = new ArrayBuffer(s.size)
+       console.log("s.size is " + s.size)
+       console.log(bufferTest)
+      // console.log(s.size)
+       let jepa = s.pack("1", currentTime, currentTime, 5)
+       console.log("this is jepa" + jepa)
+       console.log(jepa)
+       
+
+
+     /* var bytes = ["r",currentTime];
+      var unpacked = bytes.reduce(function (s, e) { 
+        return s | e << ((2) * 8); 
+      }, 0);
+      console.log(unpacked); // 1700885369
+      */
+
+     /* 
       const buffer = new ArrayBuffer(3)
       const dataView = new DataView(buffer);
       console.log(buffer)
-      dataView.setInt8(0, 1)
-      dataView.setInt8(1, currentTime)
-      dataView.setInt8(2, 23428)
-      const data = dataView.getInt8(0)
-      console.log(data)
-      console.log(buffer)
+      dataView.setInt8(0, 256, unpacked)
 
-     // const data = new Uint8Array(buffer, currentTime)
-     // console.log(data)
-      await writeC.writeValue(buffer)
+      const data0 = dataView.getInt8(0)
+      const data1 = dataView.getInt8(1)
+      console.log("Date time in Epoch: " + currentTime)
+      console.log(data0)
+      console.log(data1)
+      console.log(buffer)
+      */
+
+      // const data = new Uint8Array(buffer, currentTime)
+      // console.log(data)
+      await writeC.writeValue(jepa)
       console.log("We wrote something to WRITE characteristic. We cannot read it tho...")
 
       // This function is called when the badge disconnects from the application
@@ -86,9 +118,10 @@ function App() {
   function handleCharacteristicValueChanged(event) {
     const badgeValue = event.target.value;
     console.log('Received ' + badgeValue);
-    console.log('Hello')
+    console.log(badgeValue)
+    console.log('Hello, I am event handler. Nice to meet ya :-)')
     // This sets badge data to the data we get from badges.
-    setBadgedata(badgeValue)
+    setBadgedata("badgeValue")
   }
 
   return (
