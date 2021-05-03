@@ -76,15 +76,21 @@ function App() {
         - event handler for notifying is activated
       */
       function sendStartRecRequest() {
-        let s = struct('<cIHH')
-        const buffer = new ArrayBuffer(s.size)
-        console.log("s.size is " + s.size)
-        console.log(buffer)
-        // console.log(s.size)
-        let recRequest = s.pack("1", currentTime, currentTime, 3)
-        console.log("this is recRequest" + recRequest)
-        console.log(recRequest)
-        writeC.writeValue(recRequest)
+        try {
+          let s = struct('<cIHH')
+          const buffer = new ArrayBuffer(s.size)
+          console.log("s.size is " + s.size)
+          console.log(buffer)
+          // console.log(s.size)
+          let recRequest = s.pack("1", currentTime, currentTime, 3)
+          console.log("this is recRequest" + recRequest)
+          console.log(recRequest)
+          writeC.writeValue(recRequest)
+        }
+        catch (error) {
+          onDisconnected()
+          console.log(error)
+        }
       }
 
 
@@ -96,47 +102,50 @@ function App() {
         - event handler for notifying is activated
       */
       function sendDataRequest() {
-        let s = struct('<cIH')
-        const bufferTest = new ArrayBuffer(s.size)
-        console.log("s2.size is " + s.size)
-        console.log(bufferTest)
-        // console.log(s.size)
-        let dataRequest = s.pack("r", currentTime, currentTime)
-        console.log("this is dataRequest" + dataRequest)
-        console.log(dataRequest)
-        writeC.writeValue(dataRequest)
+        try {
+          let s = struct('<cIH')
+          const bufferTest = new ArrayBuffer(s.size)
+          console.log("s2.size is " + s.size)
+          console.log(bufferTest)
+          // console.log(s.size)
+          let dataRequest = s.pack("r", currentTime, currentTime)
+          console.log("this is dataRequest" + dataRequest)
+          console.log(dataRequest)
+          writeC.writeValue(dataRequest)
+        }
+        catch (error) {
+          onDisconnected()
+          console.log(error)
+        }
       }
-
-
-      /* 
-       const buffer = new ArrayBuffer(3)
-       const dataView = new DataView(buffer);
-       console.log(buffer)
-       dataView.setInt8(0, 256, unpacked)
- 
-       const data0 = dataView.getInt8(0)
-       const data1 = dataView.getInt8(1)
-       console.log("Date time in Epoch: " + currentTime)
-       console.log(data0)
-       console.log(data1)
-       console.log(buffer)
-       */
-
-      // const data = new Uint8Array(buffer, currentTime)
-      // console.log(data)
-
 
       // This function is called when the badge disconnects from the application
       function onDisconnected() {
-        console.log('Device is disconnected.');
+        if (!device) {
+          return;
+        }
+        console.log('Disconnecting from Bluetooth Device...');
+        if (device.gatt.connected) {
+          device.gatt.disconnect();
+          console.log('Device is disconnected.');
+        } else {
+          console.log('> Bluetooth Device is already disconnected');
+        }
+
       }
 
       // Here is a function to be called every 3 seconds to keep the connection up
       function communicateWithBadge() {
-        console.log(date)
-        console.log(currentTime)
-        sendDataRequest()
-        console.log("We wrote something to WRITE characteristic. We cannot read it tho...")
+        try {
+          console.log(date)
+          console.log(currentTime)
+          sendDataRequest()
+          console.log("We wrote something to WRITE characteristic. We cannot read it tho...")
+        }
+        catch (error) {
+          onDisconnected()
+          console.log(error)
+        }
       }
 
     }
@@ -146,10 +155,6 @@ function App() {
   }
 
 
-  //This function disconnects one badge
-  function disconnectBadge() {
-    console.log("disconnect")
-  }
   // This is a function which should convert the data types to values we could use in the front end.
   //This should be called when we add an event listener for future notifications.
   function handleCharacteristicValueChanged(event) {
@@ -158,7 +163,7 @@ function App() {
     console.log(badgeValue)
     console.log('Hello, I am event handler. Nice to meet ya :-)')
     // This sets badge data to the data we get from badges.
-    setBadgedata(badgeValue.getUint8(1))
+    setBadgedata(badgeValue.getInt8(1))
   }
 
   return (
@@ -173,7 +178,7 @@ function App() {
         </div>
         <div className="buttonGroup">
           <button className="button" onClick={connectToDeviceAndSubscribeToUpdates}>Connect</button>
-          <button className="button2" onClick={disconnectBadge}>Disconnect</button>
+          <button className="button2" onClick={() => console.log("disconnected")}>Disconnect</button>
           <p>Badge data: {badgedata}</p>
         </div>
       </header>
