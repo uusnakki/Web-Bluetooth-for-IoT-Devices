@@ -1,11 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import * as d3 from 'd3'
+import rd3 from 'react-d3-library';
 import styles from './App.css';
 import struct from "./myStruct.js";
+import { Circles } from './components/Circles.js'
 
 
 function App() {
+  const [data, setData] = useState(10);
+
+  const updateData = useCallback(() => {
+    const count = 5 + Math.round(Math.random() * 15);
+    const values = [];
+    for (let i = 0; i < count; i++) {
+      values[i] = 10 + Math.round(Math.random() * 70);
+    }
+    setData(badgedata);
+  }, []);
+
   // This is the data that we get from the badge. We use states to edit it.
-  const [badgedata, setBadgedata] = useState("");
+  const [badgedata, setBadgedata] = useState(1);
+  //This state is for changing the circle value
+  const [circlevalue, setCirclevalue] = useState(-1);
   const screenTime = new Date().toLocaleTimeString();
   const date = new Date();
   const [time, setTime] = useState(screenTime);
@@ -21,6 +37,7 @@ function App() {
   // Similar to componentDidMount and componentDidUpdate:
   useEffect(() => {
     window.setInterval(updateClock, 1000)
+    setData(badgedata)
   });
 
   const connectToDeviceAndSubscribeToUpdates = async () => {
@@ -59,6 +76,7 @@ function App() {
       await notifyC.addEventListener('characteristicvaluechanged',
         handleCharacteristicValueChanged,
         console.log("Event listener in full action"));
+      await notifyC.addEventListener('updateRadiusData', updateData)
       await notifyC.startNotifications();
       console.log('Notifications have been started.');
       //const alertValue = await askName.readValue()
@@ -173,14 +191,12 @@ function App() {
           Hub
         </h2>
         <h4>Time <br /> {time}</h4>
-        <div>
-
-        </div>
         <div className="buttonGroup">
           <button className="button" onClick={connectToDeviceAndSubscribeToUpdates}>Connect</button>
           <button className="button2" onClick={() => console.log("disconnected")}>Disconnect</button>
           <p>Badge data: {badgedata}</p>
         </div>
+        <Circles data={data} />
       </header>
     </div>
   );
