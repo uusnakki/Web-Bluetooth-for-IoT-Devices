@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import * as d3 from 'd3'
-import rd3 from 'react-d3-library';
+//import * as d3 from 'd3'
+//import rd3 from 'react-d3-library';
 import styles from './App.css';
 import struct from "./myStruct.js";
 import { Circles } from './components/Circles.js'
@@ -19,7 +19,7 @@ function App() {
   }, []);
 
   // This is the data that we get from the badge. We use states to edit it.
-  const [badgedata, setBadgedata] = useState(1);
+  const [badgedata, setBadgedata] = useState(0);
   //This state is for changing the circle value
   const [circlevalue, setCirclevalue] = useState(-1);
   const screenTime = new Date().toLocaleTimeString();
@@ -82,7 +82,7 @@ function App() {
       //const alertValue = await askName.readValue()
       //console.log(alertValue)
       await sendStartRecRequest()
-      await window.setInterval(communicateWithBadge, 3000)
+      await window.setInterval(communicateWithBadge, 50)
 
 
 
@@ -181,7 +181,7 @@ function App() {
     console.log(badgeValue)
     console.log('Hello, I am event handler. Nice to meet ya :-)')
     // This sets badge data to the data we get from badges.
-    setBadgedata(badgeValue.getInt8(1))
+    setBadgedata(badgeValue.getUint8())
   }
 
   return (
