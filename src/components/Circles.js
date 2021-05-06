@@ -4,31 +4,35 @@ import debounce from 'lodash/debounce';
 export const Circles = ({ data }) => {
   const [radius, setRadius] = useState(1);
   const containerRef = useRef(null);
+  const x = 100
+  const y = 100
 
   useEffect(() => {
     function updateRadius() {
       setRadius(data);
     }
 
-    const handleResize = debounce(updateRadius, 1000);
+    const handleResize = debounce(updateRadius, 50);
     updateRadius();
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [data]);
 
+
   return (
-    <svg width="100%" height="350" ref={containerRef}>
-      <g transform="translate(0, 100)">
+    <svg width="350" height="350" ref={containerRef}>
+      <g id="circle">
 
         <circle
           key={"asd"}
-          r={radius * 20}
-          cx={260}
-          cy={50}
-          fill='#4222f'
+          r={data < 10 ? 20 : data > 100 ? radius * 0.5 : 60 }
+          cx={x}
+          cy={y}
+          fill='#42f'
+          text="sd"
         ></circle>
-
+        <text textAnchor="middle" x={x} y={y}>B1</text>
       </g>
     </svg>
   );
