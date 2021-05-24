@@ -7,19 +7,15 @@ import { Circles } from './components/Circles.js'
 
 
 function App() {
-  const [data, setData] = useState(10);
+  const [circleData, setCircleData] = useState(10);
 
   const updateData = useCallback(() => {
-    const count = 5 + Math.round(Math.random() * 15);
-    const values = [];
-    for (let i = 0; i < count; i++) {
-      values[i] = 10 + Math.round(Math.random() * 70);
-    }
-    setData(badgedata);
-  }, []);
+    setCircleData(badgedata);
+  });
 
   // This is the data that we get from the badge. We use states to edit it.
-  const [badgedata, setBadgedata] = useState(0);
+  const [badgedata, setBadgedata] = useState(70);
+  const [rawBadgedata, setRawBadgedata] = useState([]);
   //This state is for changing the circle value
   const [circlevalue, setCirclevalue] = useState(-1);
   const screenTime = new Date().toLocaleTimeString();
@@ -37,7 +33,7 @@ function App() {
   // Similar to componentDidMount and componentDidUpdate:
   useEffect(() => {
     window.setInterval(updateClock, 1000)
-    setData(badgedata)
+    setCircleData(badgedata)
   });
 
   const connectToDeviceAndSubscribeToUpdates = async () => {
@@ -82,9 +78,9 @@ function App() {
       //const alertValue = await askName.readValue()
       //console.log(alertValue)
       await sendStartRecRequest()
-      await window.setInterval(communicateWithBadge, 50)
-
-
+      //TODO: think about how often we want to call the function
+      await window.setInterval(communicateWithBadge, 2000)
+      await setRawBadgedata([])
 
       /*  sends request to start recording, with specified timeout
        (if after timeout minutes badge has not seen server, it will stop recording)
@@ -111,7 +107,6 @@ function App() {
         }
       }
 
-
       /* send request for data since given date
         Note - date is given in UTC epoch
          sendDataRequest: badge.py line 466
@@ -124,12 +119,12 @@ function App() {
           let s = struct('<cIH')
           const bufferTest = new ArrayBuffer(s.size)
           console.log("s2.size is " + s.size)
-          console.log(bufferTest)
+          //console.log(bufferTest)
           // console.log(s.size)
           let dataRequest = s.pack("r", currentTime, currentTime)
-          console.log("this is dataRequest" + dataRequest)
           console.log(dataRequest)
           writeC.writeValue(dataRequest)
+          console.log("We wrote something to WRITE characteristic.")
         }
         catch (error) {
           onDisconnected()
@@ -158,7 +153,6 @@ function App() {
           console.log(date)
           console.log(currentTime)
           sendDataRequest()
-          console.log("We wrote something to WRITE characteristic. We cannot read it tho...")
         }
         catch (error) {
           onDisconnected()
@@ -172,16 +166,25 @@ function App() {
     }
   }
 
-
   // This is a function which should convert the data types to values we could use in the front end.
   //This should be called when we add an event listener for future notifications.
   function handleCharacteristicValueChanged(event) {
+    setBadgedata(0)
+    setRawBadgedata(0)
     const badgeValue = event.target.value;
-    console.log('Received ' + badgeValue);
-    console.log(badgeValue)
-    console.log('Hello, I am event handler. Nice to meet ya :-)')
+    const writtenData = badgeValue.getUint8(0)
+    //console.log('Hello, I am event handler. Nice to meet ya :-)')
     // This sets badge data to the data we get from badges.
-    setBadgedata(badgeValue.getUint8())
+
+    setRawBadgedata([])
+    for (let i = 0; i < 4; i++) {
+
+      rawBadgedata[i] = writtenData;
+      i++;
+    }
+    console.log(rawBadgedata[0])
+    //TODO: think about how often we want to call the function
+    setBadgedata(rawBadgedata[0])
   }
 
   return (
@@ -196,7 +199,7 @@ function App() {
           <button className="button2" onClick={() => console.log("disconnected")}>Disconnect</button>
           <p>Badge data: {badgedata}</p>
         </div>
-        <Circles data={data} />
+        <Circles data={circleData} />
       </header>
     </div>
   );

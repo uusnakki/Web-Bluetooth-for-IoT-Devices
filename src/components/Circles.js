@@ -12,7 +12,7 @@ export const Circles = ({ data }) => {
       setRadius(data);
     }
 
-    const handleResize = debounce(updateRadius, 50);
+    const handleResize = debounce(updateRadius, 2000);
     updateRadius();
 
     window.addEventListener('resize', handleResize);
@@ -29,7 +29,7 @@ export const Circles = ({ data }) => {
           r={data < 10 ? 20 : data > 100 ? radius * 0.5 : 60 }
           cx={x}
           cy={y}
-          fill='#42f'
+          fill='red'
           text="sd"
         ></circle>
         <text textAnchor="middle" x={x} y={y}>B1</text>
