@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
 //import * as d3 from 'd3'
 //import rd3 from 'react-d3-library';
 import styles from './App.css';
@@ -186,6 +187,27 @@ function App() {
     //TODO: think about how often we want to call the function
     setBadgedata(rawBadgedata[0])
   }
+
+  const submitRequest = async (e) => {
+    e.preventDefault();
+    console.log(badgedata);
+    var jsonBadge = JSON.parse(JSON.stringify(badgedata));
+    console.log("this is JSON " + jsonBadge)
+    axios
+      .post("/api/data", {
+        headers: { 'content-type': 'application/json' },
+        data:({
+          time: time,
+          jsonBadge: jsonBadge
+      })
+    })   
+      .then(function(response) {
+        console.log(response);
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
+  };
 
   return (
     <div className="App">
