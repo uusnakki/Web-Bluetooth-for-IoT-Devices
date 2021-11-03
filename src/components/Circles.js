@@ -29,7 +29,7 @@ export const Circles = ({ data }) => {
           r={data < 10 ? 20 : data > 100 ? radius * 0.5 : 60 }
           cx={x}
           cy={y}
-          fill='red'
+          fill='lightgreen'
           text="sd"
         ></circle>
         <text textAnchor="middle" x={x} y={y}>B1</text>
